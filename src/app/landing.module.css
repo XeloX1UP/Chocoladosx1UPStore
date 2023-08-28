@@ -1,0 +1,67 @@
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  25% {
+    transform: translateY(-20px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  75% {
+    transform: translateY(-10px);
+  }
+}
+
+.pulsating-text {
+  animation: bounce 2s infinite, colorChange 8s infinite;
+  color: #8b4513; /* Marrón - Color de chocolate */
+}
+
+@keyframes colorChange {
+  0%,
+  100% {
+    color: #8b4513; /* Marrón - Color de chocolate */
+  }
+  25% {
+    color: #ffd700; /* Amarillo dorado - Color del caramelo */
+  }
+  50% {
+    color: #6b4423; /* Marrón oscuro - Color de trufa */
+  }
+  75% {
+    color: #d2691e; /* Chocolate caliente - Color cálido */
+  }
+}
+@keyframes bounceOpacity {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  25% {
+    transform: translateY(-15px);
+  }
+  50% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  75% {
+    transform: translateY(-7px);
+  }
+}
+.bottonLink {
+  animation: bounceOpacity 3s infinite ease-in;
+}
+/* .bottonLink::before {
+  position: absolute;
+  content: "v";
+  background-color: aliceblue;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 50px;
+} */

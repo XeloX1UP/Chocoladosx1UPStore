@@ -2,8 +2,9 @@
 import { storeLogo } from "@/consts";
 import { IcoHome, IcoShoppingCart, IcoStore } from "@/svgExports";
 import Link from "next/link";
-import { useState } from "react";
 import { usePathname } from "next/navigation";
+import AccountButton from "../buttons/accountButton";
+import { TCookieUser } from "@/types";
 const links = [
   {
     href: "/",
@@ -21,12 +22,11 @@ const links = [
     icon: <IcoShoppingCart />,
   },
 ];
-export default function NavBar() {
-  const [activeLink, setActiveLink] = useState("Inicio");
+export default function NavBar({ user }: { user?: TCookieUser }) {
   const pathName = usePathname();
 
   return (
-    <div className="md:flex md:justify-between md:px-4 md:items-center">
+    <div className="md:flex md:justify-evenly md:items-center">
       <div id="logo" className="my-3">
         <img
           className={`mx-auto`}
@@ -36,10 +36,10 @@ export default function NavBar() {
           alt={storeLogo.desc}
         />
       </div>
-      <nav>
+      <nav className="">
         <ul className="flex justify-around">
           {links.map(({ href, name, icon }) => {
-            const isActive = pathName.split("/")[1] === href.split("/")[1];
+            const isActive = pathName?.split("/")[1] === href.split("/")[1];
 
             return (
               <li key={`${href}nav`}>
@@ -57,6 +57,9 @@ export default function NavBar() {
           })}
         </ul>
       </nav>
+      <div className="">
+        <AccountButton user={user} key={user ? "userActive" : "userInactive"} />
+      </div>
     </div>
   );
 }

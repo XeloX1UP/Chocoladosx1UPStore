@@ -1,3 +1,4 @@
+import CartList from "@/components/cartList";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -7,7 +8,7 @@ export const metadata: Metadata = {
 export default function CartPage() {
   return (
     <div>
-      <h1>carrito</h1>
+      <CartList />
     </div>
   );
 }
