@@ -260,7 +260,7 @@ export const locationsList = {
 };
 
 export const MP_CREDENTIALS = {
-  plublicKey: "TEST-b32082c8-9296-46ff-a3e9-1eb86c81b632",
+  plublicKey: "APP_USR-fcc3cc0f-6c03-4390-a8a0-8d5e321378ee",
   secretToken: `${process.env.MP_SECRET_TOKEN}`,
 };
 export const GOOGLE_MAPS_API_KEY = `${process.env.GOOGLE_MAPS_KEY}`;
