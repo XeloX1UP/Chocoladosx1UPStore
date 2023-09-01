@@ -1,12 +1,19 @@
 "use client";
 import { TCookieUser, TError } from "@/types";
 import AccordionX from "../accordion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AccordionContent from "../content/accordionContent";
 import EditableInput from "../../editableInput";
 import { validateName, validatePhoneNumber } from "@/validationsStrings";
 import { useRouter } from "next/navigation";
 import PurchaseHistory from "../../purshaseHistory";
+import { getAuth } from "firebase/auth";
+import {
+  emailVerification,
+  getUserUID,
+  logOut,
+} from "@/services/firebase/auth/app";
+import { writeData } from "@/services/firebase/realtimeDB/app";
 
 export default function AccountAccordion({ user }: { user: TCookieUser }) {
   const [expandedPanel, setExpandedPanel] = useState<string | false>(false);
@@ -14,6 +21,9 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
   const [userChanged, setUserChanged] = useState(false);
 
   const router = useRouter();
+  useEffect(() => {
+    const user = getAuth();
+  }, []);
 
   const handleChange = (panel: string) => (isExpanded: boolean) => {
     setExpandedPanel(isExpanded ? panel : false);
@@ -70,7 +80,11 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
           <AccordionContent title="¿Guardar cambios?">
             <button
               className="bg-gradient-to-tr from-green-700 to-green-500 py-1 px-3 rounded-md me-5"
-              onClick={() => {}}
+              onClick={() => {
+                const uid = `${getUserUID()}`;
+                writeData({ object: currentData, table: "users", id: uid });
+                setUserChanged(false);
+              }}
             >
               Si
             </button>
@@ -89,12 +103,12 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
           <button
             className="bg-gradient-to-tr from-red-700 to-red-500 mx-auto py-1 px-2 rounded-md"
             onClick={async () => {
-              const result = await fetch("/api/logout").then((data) =>
-                data.json()
-              );
-              if (result["isValid"]) {
-                return router.refresh();
-              }
+              await logOut(() => {
+                fetch("/api/createUserCookie/delete").then(async (response) => {
+                  const data = await response.json();
+                  if (data["isDeleted"]) router.refresh();
+                });
+              });
             }}
           >
             Cerrar sesión
@@ -110,7 +124,7 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
       >
         <PurchaseHistory />
       </AccordionX>
-      {/* <AccordionX
+      <AccordionX
         title="Seguridad"
         subtitle={"Estado de tu cuenta "}
         plus={currentData.verified ? "Verificada" : "Sin verificar"}
@@ -119,11 +133,30 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
         onChange={handleChange("panel3")}
       >
         <div className="flex">
-          <button className="mx-auto text-[var(--primary-200)] italic hover:underline hover:cursor-pointer">
-            Verificación de correo electrónico
-          </button>
+          {currentData.verified ? (
+            <h1 className="w-fit mx-auto">Tu correo ya está verificado</h1>
+          ) : (
+            <button
+              className="mx-auto text-[var(--primary-200)] italic hover:underline hover:cursor-pointer"
+              onClick={async () => {
+                emailVerification(async () => {
+                  alert(`Correo enviado a ${currentData.email}`);
+                  await logOut(() => {
+                    fetch("/api/createUserCookie/delete").then(
+                      async (response) => {
+                        const data = await response.json();
+                        if (data["isDeleted"]) router.refresh();
+                      }
+                    );
+                  });
+                });
+              }}
+            >
+              Verificación de correo electrónico
+            </button>
+          )}
         </div>
-      </AccordionX> */}
+      </AccordionX>
     </div>
   );
 }

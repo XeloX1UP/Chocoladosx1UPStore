@@ -48,6 +48,7 @@ export default function NavBar({ user }: { user?: TCookieUser }) {
                   className={`flex gap-1 p-3 hover:text-[var(--primary-100)] ${
                     isActive ? "text-[var(--accent-100)]" : ""
                   }`}
+                  prefetch={false}
                 >
                   {name}
                   {icon}

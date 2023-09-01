@@ -5,31 +5,25 @@ import AccordionContent from "./accordion/content/accordionContent";
 import { useEffect, useState } from "react";
 import { TPayHistory } from "@/types";
 import { parsePayMethodMP, parseStatusMP } from "@/services/myFunctions/parses";
+import { getUserUID } from "@/services/firebase/auth/app";
+import { getFromDBOneTime } from "@/services/firebase/realtimeDB/app";
+import { orderHistoryByDate } from "@/services/myFunctions/arrays";
 
 export default function PurchaseHistory() {
   const [currentHistory, setCurrentHistory] = useState<TPayHistory[]>();
   useEffect(() => {
     const getHistory = async () => {
-      await fetch("/api/getHistory").then(async (data) => {
-        const history = await data.json();
-        if (history["list"]) {
-          const list: TPayHistory[] = history.list;
-          setCurrentHistory((current) =>
-            list.sort((a, b) => {
-              const dateA = new Date(a.date);
-              const dateB = new Date(b.date);
-
-              if (dateA < dateB) {
-                return 1;
-              }
-              if (dateA > dateB) {
-                return -1;
-              }
-              return 0;
-            })
-          );
-        }
+      const userUID = getUserUID();
+      if (!userUID) return;
+      const data = await getFromDBOneTime<{ [key: string]: TPayHistory }>({
+        route: "sales",
+        id: userUID,
       });
+      if (data) {
+        setCurrentHistory(() =>
+          orderHistoryByDate({ type: "desc", history: Object.values(data) })
+        );
+      }
     };
     getHistory();
   }, []);
@@ -40,7 +34,7 @@ export default function PurchaseHistory() {
           return (
             <AccordionContent
               key={item.id}
-              title={new Date(item.date).toLocaleDateString()}
+              title={new Date(item.date_approved).toLocaleDateString()}
             >
               <p>
                 Id:{" "}
@@ -51,7 +45,7 @@ export default function PurchaseHistory() {
               <p>
                 Pagado:{" "}
                 <span className="text-[var(--primary-300)] font-bold">
-                  {formatNumberToCLP(item.amount)}
+                  {formatNumberToCLP(item.transaction_amount)}
                 </span>
               </p>
               <p>
@@ -63,7 +57,7 @@ export default function PurchaseHistory() {
               <p>
                 Tarjeta:{" "}
                 <span className="text-[var(--primary-300)] font-bold">
-                  {item.method}
+                  {item.payment_method_id}
                 </span>
               </p>
               <p className="">

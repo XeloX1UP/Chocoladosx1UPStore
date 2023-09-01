@@ -102,11 +102,11 @@ export type TError = {
 export type TPayHistory = {
   cart: TCartItem[];
   type: string;
-  method: string;
+  payment_method_id: string;
   status: string;
-  amount: number;
+  transaction_amount: number;
   id: string;
-  date: string;
+  date_approved: string;
   delivery_status: string;
 };
 

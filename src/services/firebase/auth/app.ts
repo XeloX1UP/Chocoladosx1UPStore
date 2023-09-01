@@ -5,41 +5,36 @@ import {
   getAuth,
   getRedirectResult,
   onAuthStateChanged,
+  sendEmailVerification,
   signInWithCredential,
   signInWithEmailAndPassword,
   signInWithPopup,
   signInWithRedirect,
 } from "firebase/auth";
-import "../firebaseConfig";
+import { auth } from "../firebaseConfig";
 import { TUserLogin } from "@/types";
-const auth = getAuth();
-// const provider = new GoogleAuthProvider();
+const provider = new GoogleAuthProvider();
 // provider.setCustomParameters({
 //   "login-hint": "usuario@ejemplo.com",
 // });
 
-export async function createUser(email: string, password: string) {
-  const errors: {
-    [key: string]: {
-      message: string;
-      error: any;
-    };
-  } = {};
-  const userRecived: { [key: string]: User } = {};
+export async function createUser(
+  email: string,
+  password: string,
+  onSignin: (user: User) => void
+) {
   await createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       // Signed in
-      userRecived["user"] = userCredential.user;
-
+      const user = userCredential.user;
+      onSignin(user);
       // ...
     })
     .catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
-      errors["newUser"] = { error: errorCode, message: errorMessage };
+      console.log({ errorMessage });
     });
-  if (Object.keys(errors).length > 0) return { errors };
-  return { message: "Usuario agregado con éxito", user: userRecived };
 }
 
 // export async function signInRedirect() {
@@ -70,48 +65,63 @@ export async function createUser(email: string, password: string) {
 //       // ...
 //     });
 // }
-// export async function signInGooglePopUp() {
-//   return await signInWithPopup(auth, provider)
-//     .then((result) => {
-//       // This gives you a Google Access Token. You can use it to access the Google API.
-//       const credential = GoogleAuthProvider.credentialFromResult(result);
-//       console.log(credential);
+export async function signInGooglePopUp(onSignin: (user: User) => void) {
+  return await signInWithPopup(auth, provider)
+    .then((result) => {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      const credential = GoogleAuthProvider.credentialFromResult(result);
 
-//       if (!credential) return;
-//       const token = credential.accessToken;
-//       // The signed-in user info.
-//       const user = result.user;
-
-//       return user;
-//       // IdP data available using getAdditionalUserInfo(result)
-//       // ...
-//     })
-//     .catch((error) => {
-//       // Handle Errors here.
-//       const errorCode = error.code;
-//       const errorMessage = error.message;
-//       // The email of the user's account used.
-//       const email = error.customData.email;
-//       // The AuthCredential type that was used.
-//       const credential = GoogleAuthProvider.credentialFromError(error);
-//       // ...
-//     });
-// }
-export async function signInEmailAndPassword({ email, password }: TUserLogin) {
+      if (!credential) return;
+      const token = credential.accessToken;
+      // The signed-in user info.
+      const user = result.user;
+      onSignin(user);
+      return user;
+      // IdP data available using getAdditionalUserInfo(result)
+      // ...
+    })
+    .catch((error) => {
+      // Handle Errors here.
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      // The email of the user's account used.
+      const email = error.customData.email;
+      // The AuthCredential type that was used.
+      const credential = GoogleAuthProvider.credentialFromError(error);
+      // ...
+    });
+}
+export async function signInEmailAndPassword(
+  { email, password }: TUserLogin,
+  onSignin: (user: User) => void
+) {
   await signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       // Signed in
       const user = userCredential.user;
-
+      onSignin(user);
       // ...
     })
     .catch((error) => {
-      console.log({ error });
+      alert("Contraseña incorrecta.");
     });
 }
-export async function logOut() {
+export async function emailVerification(onSend: () => void) {
+  if (!auth.currentUser || auth.currentUser === null) return;
+  await sendEmailVerification(auth.currentUser)
+    .then(() => {
+      //Correo enviado
+      onSend();
+    })
+    .catch((error) => {
+      alert("Error enviando el correo de verificación");
+    });
+}
+export async function logOut(onLogout: () => void) {
   try {
-    await auth.signOut();
+    await auth.signOut().then(() => {
+      onLogout();
+    });
   } catch (error) {
     console.log("Error cerrando sesión");
   }

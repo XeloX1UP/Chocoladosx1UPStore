@@ -1,6 +1,8 @@
 "use client";
 import TransitionsModal from "@/components/transitionModal";
 import { MP_CREDENTIALS } from "@/consts";
+import { getUserUID } from "@/services/firebase/auth/app";
+import { writeData } from "@/services/firebase/realtimeDB/app";
 import { parsePayMethodMP, parseStatusMP } from "@/services/myFunctions/parses";
 import { TAddress, TCartItem, TMercadopagoApiResponse } from "@/types";
 import { Payment } from "@mercadopago/sdk-react";
@@ -44,14 +46,20 @@ export default function MercadoPago({
           // recibir el resultado del pago
           resolve();
           handleResponse ? handleResponse(response) : defaultHandle();
-          console.log(response);
           if (response["payData"]) {
-            setPayData(response["payData"]);
+            const userUID = `${getUserUID()}`;
+            setPayData(() => response["payData"]);
+            writeData({
+              object: response["payData"],
+              table: `sales/${userUID}`,
+              id: response["payData"]["id"],
+            });
             setIsOpen(true);
           }
         })
         .catch((error) => {
           // manejar la respuesta de error al intentar crear el pago
+
           reject();
         });
     });

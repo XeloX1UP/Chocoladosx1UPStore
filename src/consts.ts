@@ -265,5 +265,3 @@ export const MP_CREDENTIALS = {
 };
 export const GOOGLE_MAPS_API_KEY = `${process.env.GOOGLE_MAPS_KEY}`;
 export const EMAIL_SENDGRID = `${process.env.EMAIL_SENDGRID}`;
-
-export const DOMAIN_APP = process.env.DOMAIN ?? "localhost:3000";

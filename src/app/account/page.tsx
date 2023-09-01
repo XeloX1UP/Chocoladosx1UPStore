@@ -7,6 +7,7 @@ import AccountAccordion from "@/components/accordion/account/accountAccordion";
 export default async function AccountPage() {
   const cookieStore = cookies();
   const user_token = cookieStore.get("user")?.value;
+
   if (user_token) {
     const user = jwt.verify(user_token, secretJwt);
     if (typeof user != "string") {

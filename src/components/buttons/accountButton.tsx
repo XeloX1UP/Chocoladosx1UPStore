@@ -18,6 +18,7 @@ export default function AccountButton({
         (user ? activeClassName : defaultClassName) +
         " flex gap-2 max-w-max mt-8 md:mt-0 ms-auto me-4 md:me-0 py-4 px-6"
       }
+      prefetch={false}
     >
       Mi Cuenta{" "}
       <span className="text-[var(--accent-100)]">

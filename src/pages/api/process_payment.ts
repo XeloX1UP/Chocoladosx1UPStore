@@ -55,7 +55,7 @@ export default async function handle(
   if (typeof user != "string") {
     await mercadopago.payment.create(payment_data).then(function (data: any) {
       if (data["body"]) {
-        isApproved = true;
+        isApproved = data["body"]["status"] === "approved";
         const payData = {
           id: data["body"]["id"],
           date_approved: data["body"]["date_approved"],
@@ -66,17 +66,11 @@ export default async function handle(
           card: data["body"]["card"],
           cart: cart,
           transaction_amount: data["body"]["transaction_amount"],
-          delivery_status: "Preparando envío",
+          delivery_status: isApproved
+            ? "Preparando envío"
+            : "Pendiente de pago",
           address,
         };
-        const userUID = getUserUID();
-        if (userUID) {
-          writeData({
-            object: payData,
-            table: `sales/${userUID}`,
-            id: payData.id,
-          });
-        }
 
         const htmlCart = cart.map((item) => {
           return `<li>

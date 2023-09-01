@@ -1,5 +1,5 @@
 "use client";
-import { INewUser, TError } from "@/types";
+import { INewUser, TCookieUser, TError } from "@/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -9,6 +9,8 @@ import {
   validatePhoneNumber,
   validateRePassword,
 } from "@/validationsStrings";
+import { createUser } from "@/services/firebase/auth/app";
+import { writeData } from "@/services/firebase/realtimeDB/app";
 
 const validateNewUser = ({ user }: { user: INewUser }) => {
   const error: TError = {};
@@ -46,17 +48,30 @@ export default function CreateAccount() {
       return;
     }
     setErrors({});
-    setData(validUser.user);
-    const response: { message: string; code: number } = await fetchNewUser(
-      data
-    );
+    setData(() => validUser.user);
+    await createUser(data.email, data.password, (user) => {
+      const uid = user.uid;
+      const user_cookie: TCookieUser = {
+        email: user.email ?? data.email,
+        name: user.displayName ?? data.name,
+        phoneNumber: user.phoneNumber
+          ? Number(user.phoneNumber)
+          : data.phoneNumber,
+        verified: user.emailVerified,
+      };
+      writeData({ object: user_cookie, id: uid, table: "users" });
 
-    if (response.code && response.code === 1) {
-      //continuar la compra
-      location.reload();
-    } else {
-      alert(response.message);
-    }
+      fetch(
+        `/api/createUserCookie/${encodeURIComponent(
+          JSON.stringify(user_cookie)
+        )}`
+      )
+        .then(async (response) => {
+          const recivedata = await response.json();
+          if (recivedata["isValid"]) router.refresh();
+        })
+        .catch((error) => console.error({ error }));
+    });
   };
   return (
     <form

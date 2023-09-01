@@ -1,7 +1,23 @@
-import { getDatabase, onValue, ref, set } from "firebase/database";
-import "../firebaseConfig";
-import { getAuth } from "firebase/auth";
-const database = getDatabase();
+import { child, get, getDatabase, onValue, ref, set } from "firebase/database";
+import { database } from "../firebaseConfig";
+
+export async function getFromDBOneTime<T>({
+  route,
+  id,
+}: {
+  route: string;
+  id: string;
+}) {
+  const dbRef = ref(database);
+  const data: { [key: string]: T } = {};
+  await get(child(dbRef, `${route}/${id}`))
+    .then((snapshot) => {
+      if (snapshot.exists()) data["user"] = snapshot.val();
+    })
+    .catch((error) => {});
+
+  if (Object.keys(data).length > 0) return data["user"];
+}
 export function getFromDB<T>({
   route,
   id,
@@ -12,19 +28,17 @@ export function getFromDB<T>({
   item?: string;
 }) {
   const fullPath = `${route}/` + (id ? id : "") + (item ? `/${item}` : "");
-  const starCountRef = ref(database, fullPath);
+  const dbRef = ref(database, fullPath);
   const data: { [key: string]: T } = {};
-  const currentUser = getAuth();
-  if (currentUser.currentUser?.uid === id)
-    onValue(
-      starCountRef,
-      (snapshot) => {
-        if (snapshot.exists()) {
-          data["value"] = snapshot.val();
-        }
-      },
-      (error) => {}
-    );
+  onValue(
+    dbRef,
+    (snapshot) => {
+      if (snapshot.val()) data["value"] = snapshot.val();
+    },
+    (error) => {
+      console.log({ error });
+    }
+  );
 
   if (Object.keys(data).length > 0) return data["value"];
 }

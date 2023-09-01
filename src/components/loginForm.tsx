@@ -1,15 +1,18 @@
 "use client";
 
-import { TUserLogin } from "@/types";
+import { TCookieUser, TUserLogin } from "@/types";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  getUserUID,
+  signInEmailAndPassword,
+} from "@/services/firebase/auth/app";
 import GoogleLoginButton from "./googleLoginButton";
-const fetchLogin = async (user: TUserLogin) => {
-  return await fetch("/api/login", {
-    method: "POST",
-    body: JSON.stringify(user),
-  }).then((data) => data.json());
-};
+import {
+  getFromDB,
+  getFromDBOneTime,
+  writeData,
+} from "@/services/firebase/realtimeDB/app";
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,23 +45,51 @@ export default function LoginForm() {
           <button
             className="bg-[var(--primary-200)] rounded-md py-1 px-3 text-[var(--bg-100)] font-bold"
             onClick={async () => {
-              const userLoginData = { email, password };
-              const result: { message: string; code: number } =
-                await fetchLogin(userLoginData);
-              if (result.code === 1) {
-                router.refresh();
-              } else {
-                alert(result.message);
-              }
+              await signInEmailAndPassword(
+                { email, password },
+                async (user) => {
+                  const cookie_user = await getFromDBOneTime<TCookieUser>({
+                    route: "users",
+                    id: user.uid,
+                  });
+
+                  if (cookie_user) {
+                    if (!cookie_user.verified && user.emailVerified) {
+                      writeData({
+                        object: { ...cookie_user, verified: true },
+                        table: "users",
+                        id: user.uid,
+                      });
+                      fetch(
+                        `/api/createUserCookie/${encodeURIComponent(
+                          JSON.stringify({ ...cookie_user, verified: true })
+                        )}`
+                      )
+                        .then((data) => data.json())
+                        .then((response) => {
+                          if (response["isValid"]) router.refresh();
+                        });
+                    } else {
+                      fetch(
+                        `/api/createUserCookie/${encodeURIComponent(
+                          JSON.stringify(cookie_user)
+                        )}`
+                      )
+                        .then((data) => data.json())
+                        .then((response) => {
+                          if (response["isValid"]) router.refresh();
+                        });
+                    }
+                  }
+                }
+              );
             }}
           >
             Iniciar sesión
           </button>
         </div>
       </form>
-      <div className="w-fit mx-auto">
-        <GoogleLoginButton />
-      </div>
+      <div className="w-fit mx-auto">{/* <GoogleLoginButton /> */}</div>
     </>
   );
 }
