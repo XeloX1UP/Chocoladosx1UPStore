@@ -60,7 +60,7 @@ export default function LoginForm() {
                         table: "users",
                         id: user.uid,
                       });
-                      fetch(
+                      await fetch(
                         `/api/createUserCookie/${encodeURIComponent(
                           JSON.stringify({ ...cookie_user, verified: true })
                         )}`
@@ -70,7 +70,7 @@ export default function LoginForm() {
                           if (response["isValid"]) router.refresh();
                         });
                     } else {
-                      fetch(
+                      await fetch(
                         `/api/createUserCookie/${encodeURIComponent(
                           JSON.stringify(cookie_user)
                         )}`

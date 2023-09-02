@@ -40,7 +40,7 @@ export default function CreateAccount() {
     }
     setErrors({});
     setData(() => validUser.user);
-    await createUser(data.email, data.password, (user) => {
+    await createUser(data.email, data.password, async (user) => {
       const uid = user.uid;
       const user_cookie: TCookieUser = {
         email: user.email ?? data.email,
@@ -52,7 +52,7 @@ export default function CreateAccount() {
       };
       writeData({ object: user_cookie, id: uid, table: "users" });
 
-      fetch(
+      await fetch(
         `/api/createUserCookie/${encodeURIComponent(
           JSON.stringify(user_cookie)
         )}`
