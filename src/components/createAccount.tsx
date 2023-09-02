@@ -55,7 +55,8 @@ export default function CreateAccount() {
       await fetch(
         `/api/createUserCookie/${encodeURIComponent(
           JSON.stringify(user_cookie)
-        )}`
+        )}`,
+        { cache: "no-store" }
       )
         .then(async (response) => {
           const recivedata = await response.json();

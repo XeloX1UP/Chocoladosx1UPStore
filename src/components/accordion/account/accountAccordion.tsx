@@ -1,13 +1,12 @@
 "use client";
 import { TCookieUser, TError } from "@/types";
 import AccordionX from "../accordion";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AccordionContent from "../content/accordionContent";
 import EditableInput from "../../editableInput";
 import { validateName, validatePhoneNumber } from "@/validationsStrings";
 import { useRouter } from "next/navigation";
 import PurchaseHistory from "../../purshaseHistory";
-import { getAuth } from "firebase/auth";
 import {
   emailVerification,
   getUserUID,
@@ -21,9 +20,6 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
   const [userChanged, setUserChanged] = useState(false);
 
   const router = useRouter();
-  useEffect(() => {
-    const user = getAuth();
-  }, []);
 
   const handleChange = (panel: string) => (isExpanded: boolean) => {
     setExpandedPanel(isExpanded ? panel : false);
@@ -104,7 +100,9 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
             className="bg-gradient-to-tr from-red-700 to-red-500 mx-auto py-1 px-2 rounded-md"
             onClick={async () => {
               await logOut(async () => {
-                await fetch("/api/createUserCookie/delete")
+                await fetch("/api/createUserCookie/delete", {
+                  cache: "no-store",
+                })
                   .then(async (response) => {
                     const data = await response.json();
                     console.log(data);
@@ -146,7 +144,9 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
                 emailVerification(async () => {
                   alert(`Correo enviado a ${currentData.email}`);
                   await logOut(async () => {
-                    await fetch("/api/createUserCookie/delete")
+                    await fetch("/api/createUserCookie/delete", {
+                      cache: "no-store",
+                    })
                       .then(async (response) => {
                         const data = await response.json();
                         if (data["isDeleted"]) router.refresh();

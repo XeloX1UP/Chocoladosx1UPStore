@@ -63,7 +63,8 @@ export default function LoginForm() {
                       await fetch(
                         `/api/createUserCookie/${encodeURIComponent(
                           JSON.stringify({ ...cookie_user, verified: true })
-                        )}`
+                        )}`,
+                        { cache: "no-store" }
                       )
                         .then((data) => data.json())
                         .then((response) => {
@@ -73,7 +74,8 @@ export default function LoginForm() {
                       await fetch(
                         `/api/createUserCookie/${encodeURIComponent(
                           JSON.stringify(cookie_user)
-                        )}`
+                        )}`,
+                        { cache: "no-store" }
                       )
                         .then((data) => data.json())
                         .then((response) => {
