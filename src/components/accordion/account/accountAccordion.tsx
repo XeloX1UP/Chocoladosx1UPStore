@@ -147,6 +147,8 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
                     fetch("/api/createUserCookie/delete")
                       .then(async (response) => {
                         const data = await response.json();
+                        console.log(data);
+
                         if (data["isDeleted"]) router.refresh();
                       })
                       .catch((err) => console.log(err));
