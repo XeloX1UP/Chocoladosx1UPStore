@@ -144,12 +144,12 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
                 emailVerification(async () => {
                   alert(`Correo enviado a ${currentData.email}`);
                   await logOut(() => {
-                    fetch("/api/createUserCookie/delete").then(
-                      async (response) => {
+                    fetch("/api/createUserCookie/delete")
+                      .then(async (response) => {
                         const data = await response.json();
                         if (data["isDeleted"]) router.refresh();
-                      }
-                    );
+                      })
+                      .catch((err) => console.log(err));
                   });
                 });
               }}
