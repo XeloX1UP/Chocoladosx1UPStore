@@ -104,12 +104,14 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
             className="bg-gradient-to-tr from-red-700 to-red-500 mx-auto py-1 px-2 rounded-md"
             onClick={async () => {
               await logOut(async () => {
-                await fetch("/api/createUserCookie/delete").then(
-                  async (response) => {
+                await fetch("/api/createUserCookie/delete")
+                  .then(async (response) => {
                     const data = await response.json();
+                    console.log(data);
+
                     if (data["isDeleted"]) router.refresh();
-                  }
-                );
+                  })
+                  .catch((error) => console.log(error));
               });
             }}
           >
@@ -143,12 +145,10 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
               onClick={async () => {
                 emailVerification(async () => {
                   alert(`Correo enviado a ${currentData.email}`);
-                  await logOut(() => {
-                    fetch("/api/createUserCookie/delete")
+                  await logOut(async () => {
+                    await fetch("/api/createUserCookie/delete")
                       .then(async (response) => {
                         const data = await response.json();
-                        console.log(data);
-
                         if (data["isDeleted"]) router.refresh();
                       })
                       .catch((err) => console.log(err));
