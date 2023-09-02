@@ -9,7 +9,7 @@ import {
   validatePhoneNumber,
   validateRePassword,
 } from "@/validationsStrings";
-import { createUser } from "@/services/firebase/auth/app";
+import { createUser, emailVerification } from "@/services/firebase/auth/app";
 import { writeData } from "@/services/firebase/realtimeDB/app";
 
 const validateNewUser = ({ user }: { user: INewUser }) => {
@@ -21,15 +21,6 @@ const validateNewUser = ({ user }: { user: INewUser }) => {
   validateRePassword(user.rePassword, user.password, error);
   if (Object.keys(error).length > 0) return { error };
   return { user };
-};
-const fetchNewUser = async (data: INewUser) => {
-  const result = await fetch("/api/newUser", {
-    method: "POST",
-    body: JSON.stringify(data),
-  })
-    .then((data) => data.json())
-    .catch((err) => console.log(err));
-  return result;
 };
 export default function CreateAccount() {
   const router = useRouter();
@@ -68,7 +59,14 @@ export default function CreateAccount() {
       )
         .then(async (response) => {
           const recivedata = await response.json();
-          if (recivedata["isValid"]) router.refresh();
+          if (recivedata["isValid"]) {
+            await emailVerification(() => {
+              alert(
+                `Se ha enviado un correo de verificacion a ${user_cookie.email}`
+              );
+            });
+            router.refresh();
+          }
         })
         .catch((error) => console.error({ error }));
     });
@@ -84,8 +82,12 @@ export default function CreateAccount() {
         type="text"
         placeholder="Nombre completo..."
         className="my-3 rounded-sm py-1 px-2 bg-transparent shadow-black shadow-sm"
+        value={data.name}
         onChange={(e) => {
           setData({ ...data, name: e.target.value });
+        }}
+        onBlur={() => {
+          setData({ ...data, name: data.name.trim() });
         }}
       />
       <p className="text-sm text-red-400 mt-[-10px]">
@@ -95,8 +97,12 @@ export default function CreateAccount() {
         type="text"
         placeholder="Correo..."
         className="my-3 rounded-sm py-1 px-2 bg-transparent shadow-black shadow-sm"
+        value={data.email}
         onChange={(e) => {
           setData({ ...data, email: e.target.value });
+        }}
+        onBlur={() => {
+          setData({ ...data, email: data.email.trim() });
         }}
       />
       <p className="text-sm text-red-400 mt-[-10px]">
@@ -106,6 +112,7 @@ export default function CreateAccount() {
         type="text"
         placeholder="Teléfono..."
         className="my-3 rounded-sm py-1 px-2 bg-transparent shadow-black shadow-sm"
+        value={data.phoneNumber > 0 ? data.phoneNumber : ""}
         onChange={(e) => {
           setData({ ...data, phoneNumber: Number(e.target.value) });
         }}
@@ -117,8 +124,12 @@ export default function CreateAccount() {
         type="password"
         placeholder="Contraseña..."
         className="my-3 rounded-sm py-1 px-2 bg-transparent shadow-black shadow-sm"
+        value={data.password}
         onChange={(e) => {
           setData({ ...data, password: e.target.value });
+        }}
+        onBlur={() => {
+          setData({ ...data, password: data.password.trim() });
         }}
       />
       <p className="text-sm text-red-400 mt-[-10px]">
@@ -127,9 +138,13 @@ export default function CreateAccount() {
       <input
         type="password"
         placeholder="Repita contraseña..."
+        value={data.rePassword}
         className="my-3 rounded-sm py-1 px-2 bg-transparent shadow-black shadow-sm"
         onChange={(e) => {
           setData({ ...data, rePassword: e.target.value });
+        }}
+        onBlur={() => {
+          setData({ ...data, rePassword: data.rePassword.trim() });
         }}
       />
       <p className="text-sm text-red-400 mt-[-10px]">

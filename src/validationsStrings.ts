@@ -16,7 +16,10 @@ export const validatePhoneNumber = (value: number, error: TError) => {
 export const validatePassword = (value: string, error: TError) => {
   const regEx = /^(?=.*[A-Z])(?=.*\d).+$/;
   if (!regEx.test(value))
-    error["password"] = { message: "La contraseña es inválida" };
+    error["password"] = {
+      message:
+        "La contraseña debe ser alfanumérica y contener al menos una mayúscula",
+    };
 };
 export const validateRePassword = (
   value: string,
