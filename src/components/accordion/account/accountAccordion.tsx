@@ -103,11 +103,13 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
           <button
             className="bg-gradient-to-tr from-red-700 to-red-500 mx-auto py-1 px-2 rounded-md"
             onClick={async () => {
-              await logOut(() => {
-                fetch("/api/createUserCookie/delete").then(async (response) => {
-                  const data = await response.json();
-                  if (data["isDeleted"]) router.refresh();
-                });
+              await logOut(async () => {
+                await fetch("/api/createUserCookie/delete").then(
+                  async (response) => {
+                    const data = await response.json();
+                    if (data["isDeleted"]) router.refresh();
+                  }
+                );
               });
             }}
           >
