@@ -66,7 +66,7 @@ export default function MercadoPago({
   };
   const onError = async (error: any) => {
     // callback llamado para todos los casos de error de Brick
-    console.log(error);
+    // console.log(error);
   };
   const onReady = async () => {
     /*

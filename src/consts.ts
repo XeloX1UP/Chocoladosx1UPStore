@@ -33,8 +33,8 @@ export const productList: TProduct[] = [
   },
   {
     id: 2,
-    name: "Crema, mora y frutilla 350cc",
-    price: 2000,
+    name: "Helado de crema, mora y frutilla 350cc",
+    price: 2500,
     description: "Helado de crema, moras y frutillas en trozos.",
     cant: 1,
     category: "icecreams",
@@ -42,8 +42,8 @@ export const productList: TProduct[] = [
   },
   {
     id: 3,
-    name: "Crema, coco rallado y chocolate 350cc",
-    price: 2500,
+    name: "Helado de crema, coco rallado y chocolate 350cc",
+    price: 3000,
     description: "Helado de crema y coco rallado, con cubierta de chocolate. ",
     cant: 1,
     category: "icecreams",

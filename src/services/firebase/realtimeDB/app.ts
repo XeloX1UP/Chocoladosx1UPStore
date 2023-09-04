@@ -36,7 +36,7 @@ export function getFromDB<T>({
       if (snapshot.val()) data["value"] = snapshot.val();
     },
     (error) => {
-      console.log({ error });
+      // console.log({ error });
     }
   );
 

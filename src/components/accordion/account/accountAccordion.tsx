@@ -105,11 +105,13 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
                 })
                   .then(async (response) => {
                     const data = await response.json();
-                    console.log(data);
+                    // console.log(data);
 
                     if (data["isDeleted"]) router.refresh();
                   })
-                  .catch((error) => console.log(error));
+                  .catch((error) => {
+                    // console.log(error)
+                  });
               });
             }}
           >
@@ -151,7 +153,9 @@ export default function AccountAccordion({ user }: { user: TCookieUser }) {
                         const data = await response.json();
                         if (data["isDeleted"]) router.refresh();
                       })
-                      .catch((err) => console.log(err));
+                      .catch((err) => {
+                        // console.log(err)
+                      });
                   });
                 });
               }}

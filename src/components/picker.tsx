@@ -43,7 +43,7 @@ export default function Picker({
         alert(result.message);
       }
     } catch (err) {
-      console.log({ err });
+      // console.log({ err });
     }
   };
   const handleClickBuy = async () => {

@@ -33,7 +33,7 @@ export async function createUser(
     .catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
-      console.log({ errorMessage });
+      // console.log({ errorMessage });
     });
 }
 
@@ -123,7 +123,7 @@ export async function logOut(onLogout: () => void) {
       onLogout();
     });
   } catch (error) {
-    console.log("Error cerrando sesión");
+    // console.log("Error cerrando sesión");
   }
 }
 

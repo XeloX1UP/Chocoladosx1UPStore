@@ -12,7 +12,7 @@ export default function handle(req: IHandleProps, res: NextApiResponse) {
   const token = req.query.token;
   switch (type) {
     case "user":
-      console.log(token);
+      // console.log(token);
       return res.json({ message: "funcionando" });
     default:
       return res.status(203).json({ message: "Tipo no válido" });
